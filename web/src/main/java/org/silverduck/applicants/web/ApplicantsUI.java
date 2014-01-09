@@ -1,54 +1,47 @@
 package org.silverduck.applicants.web;
 
 import com.vaadin.annotations.Theme;
-import com.vaadin.annotations.VaadinServletConfiguration;
-import com.vaadin.data.util.BeanItem;
+import com.vaadin.cdi.CDIUI;
+import com.vaadin.cdi.CDIViewProvider;
+import com.vaadin.navigator.Navigator;
 import com.vaadin.server.VaadinRequest;
-import com.vaadin.server.VaadinServlet;
-import com.vaadin.ui.*;
-import org.silverduck.applicants.domain.Applicant;
+import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.UI;
 
-import javax.persistence.PersistenceContext;
-import javax.servlet.annotation.WebServlet;
+import javax.enterprise.inject.Produces;
+import javax.inject.Inject;
+import java.util.Locale;
+
 
 @Theme("mytheme")
 @SuppressWarnings("serial")
+@CDIUI
 public class ApplicantsUI extends UI {
 
-    //@EJB
-    //private ApplicantsRepo applicantsRepo;
+    public static final String APPLICANT_FORM_VIEW = "ApplicantForm";
 
+    private Navigator navigator;
 
-    @WebServlet(value = "/*", asyncSupported = true)
-    @VaadinServletConfiguration(productionMode = false, ui = ApplicantsUI.class, widgetset = "org.silverduck.applicants.web.AppWidgetSet")
-    @PersistenceContext(name = "persistence/em", unitName = "applicants-unit")
-    public static class Servlet extends VaadinServlet {
-    }
+    @Inject
+    private CDIViewProvider viewProvider;
 
-    public ApplicantsUI() {
-    }
+    /**
+     * Used in other views for localization. Simplistic approach.
+     */
+    @Produces
+    private Locale requestLocale;
 
     @Override
     protected void init(VaadinRequest request) {
+        requestLocale = request.getLocale();
         initializeLayout(request);
     }
 
     private void initializeLayout(VaadinRequest request) {
-        final HorizontalLayout horizontalLayout = new HorizontalLayout();
-        horizontalLayout.setDefaultComponentAlignment(Alignment.MIDDLE_CENTER);
-        final VerticalLayout verticalLayout = new VerticalLayout();
-        verticalLayout.setMargin(true);
-        verticalLayout.setDefaultComponentAlignment(Alignment.TOP_LEFT);
-        verticalLayout.setWidth(500, Unit.PIXELS);
-
-        verticalLayout.addComponent(new Label("This is a TEST label to see if anything gets rendered"));
-        verticalLayout.addComponent(new ApplicantForm(new BeanItem<Applicant>(new Applicant().resetFields()), request.getLocale()));
-
-
-//        Table applicantsDebug = new Table("DEBUG Table", applicantsRepo.// TODO: do it.
-
-        //      verticalLayout.addComponent(applicantsDebug);
-        horizontalLayout.addComponent(verticalLayout);
+        HorizontalLayout horizontalLayout = new HorizontalLayout();
+        horizontalLayout.setSizeFull();
+        navigator = new Navigator(this, horizontalLayout);
+        navigator.addProvider(viewProvider);
         setContent(horizontalLayout);
     }
 

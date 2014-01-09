@@ -10,7 +10,8 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * Created by Iiro on 6.1.2014.
+ * Repository methods that provide Applicant-operations with JTA transcations.
+ *
  */
 @Stateless
 @TransactionManagement(TransactionManagementType.CONTAINER)

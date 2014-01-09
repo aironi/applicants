@@ -1,0 +1,142 @@
+<project>
+    <parent>
+        <groupId>org.silverduck.applicants</groupId>
+        <artifactId>build</artifactId>
+        <version>1.0</version>
+        <relativePath>../build/pom.xml</relativePath>
+    </parent>
+
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>org.silverduck.applicants</groupId>
+    <artifactId>applicants-ear</artifactId>
+    <packaging>ear</packaging>
+    <version>1.0</version>
+    <name>Applicants EAR</name>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.silverduck.applicants</groupId>
+            <artifactId>domain</artifactId>
+            <version>1.0</version>
+            <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>org.silverduck.applicants</groupId>
+            <artifactId>services</artifactId>
+            <version>1.0</version>
+            <type>ejb</type>
+        </dependency>
+        <dependency>
+            <groupId>org.silverduck.applicants</groupId>
+            <artifactId>applicants-web</artifactId>
+            <version>1.0</version>
+            <type>war</type>
+        </dependency>
+        <!--
+        <dependency>
+           <groupId>root.project.servlets</groupId>
+           <artifactId>servlet</artifactId>
+           <type>war</type>
+        </dependency>
+        <dependency>
+           <groupId>root.project</groupId>
+           <artifactId>primary-source</artifactId>
+        </dependency>
+        <dependency>
+           <groupId>root.project.projects</groupId>
+           <artifactId>logging</artifactId>
+        </dependency>
+        !-->
+    </dependencies>
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-ear-plugin</artifactId>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <addClasspath>true</addClasspath>
+                        </manifest>
+                    </archive>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+    <profiles>
+        <!-- This profile may be used to run the app in Tom EE custom deployment -->
+        <profile>
+            <id>tomee-run</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.openejb.maven</groupId>
+                        <artifactId>tomee-maven-plugin</artifactId>
+                        <version>1.0.0</version>
+                        <configuration>
+                            <tomeeVersion>1.6.0</tomeeVersion>
+                            <tomeeClassifier>webprofile</tomeeClassifier>
+                            <debugPort>5005</debugPort>
+                            <debug>false</debug>
+
+                            <path>${project.basedir}/target/applicants-ear-1.0.ear</path>
+                            <apps>
+                                <app>org.silverduck.applicants:applicants-ear:1.0:ear</app>
+                            </apps>
+
+                            <webapps>
+                                <webapp>org.silverduck.applicants:applicants-web:1.0?name=ROOT</webapp>
+                            </webapps>
+                            <libs>
+                                <!-- Remove Open JPA stuff... -->
+                                <!--<lib>remove:openjpa-</lib>-->
+                                <!-- And use EclipseLink instead -->
+                                <!--<lib>javax.ejb:ejb-api:3.0</lib>-->
+                                <lib>org.eclipse.persistence:javax.persistence:2.0.0</lib>
+                                <lib>org.eclipse.persistence:eclipselink:2.5.0</lib>
+                                <lib>org.eclipse.persistence:commonj.sdo:2.1.1</lib>
+                                <lib>org.eclipse.persistence:org.eclipse.persistence.core:2.5.0</lib>
+                                <lib>org.eclipse.persistence:org.eclipse.persistence.asm:2.5.0</lib>
+                                <lib>org.eclipse.persistence:org.eclipse.persistence.jpa:2.5.0</lib>
+                                <lib>org.eclipse.persistence:org.eclipse.persistence.antlr:2.5.0</lib>
+                                <lib>org.eclipse.persistence:org.eclipse.persistence.jpa.jpql:2.5.0</lib>
+                            </libs>
+                            <!--
+                            [INFO] Copying artifact [jar:javax.ejb:ejb-api:3.0] to [ejb-api-3.0.jar]
+                            [INFO] Copying artifact [jar:org.eclipse.persistence:javax.persistence:2.0.0] to
+                            [javax.persistence-2.0.0.jar]
+                            [INFO] Copying artifact [jar:org.eclipse.persistence:eclipselink:2.5.0] to [ecli
+                            pselink-2.5.0.jar]
+                            [INFO] Copying artifact [jar:org.eclipse.persistence:commonj.sdo:2.1.1] to [comm
+                            onj.sdo-2.1.1.jar]
+                            [INFO] Copying artifact [jar:org.eclipse.persistence:org.eclipse.persistence.cor
+                            e:2.5.0] to [org.eclipse.persistence.core-2.5.0.jar]
+                            [INFO] Copying artifact [jar:org.eclipse.persistence:org.eclipse.persistence.asm
+                            :2.5.0] to [org.eclipse.persistence.asm-2.5.0.jar]
+                            [INFO] Copying artifact [jar:org.eclipse.persistence:org.eclipse.persistence.jpa
+                            :2.5.0] to [org.eclipse.persistence.jpa-2.5.0.jar]
+                            [INFO] Copying artifact [jar:org.eclipse.persistence:org.eclipse.persistence.ant
+                            lr:2.5.0] to [org.eclipse.persistence.antlr-2.5.0.jar]
+                            [INFO] Copying artifact [jar:org.eclipse.persistence:org.eclipse.persistence.jpa
+                            .jpql:2.5.0] to [org.eclipse.persistence.jpa.jpql-2.5.0.jar]
+                            [INFO] Copying artifact [jar:org.hibernate:hibernate-validator:4.2.0.Final] to [
+                            hibernate-validator-4.2.0.Final.jar]
+                            [INFO] Copying artifact [jar:javax.validation:validation-api:1.0.0.GA] to [valid
+                            ation-api-1.0.0.GA.jar]
+                            [INFO] Copying artifact [jar:org.slf4j:slf4j-api:1.6.1] to [slf4j-api-1.6.1.jar]
+                            -->
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>tomee-run</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+</project>

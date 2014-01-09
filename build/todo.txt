@@ -1,0 +1,33 @@
+TODO:
+
+[ ] Git käyttöön. Repo on jo. Vaihtoehdot:
+
+1. Create a new repository on the command line
+
+touch README.md
+git init
+git add README.md
+git commit -m "first commit"
+git remote add origin https://github.com/aironi/applicants.git
+git push -u origin master
+
+TAI
+
+2. Push an existing repository from the command line
+
+git remote add origin https://github.com/aironi/applicants.git
+git push -u origin master
+
+
+
+[x] Vaadin JPA container & EclipseLink
+   -> persistence.xml kuntoon
+
+[ ] EntityProvider käyttö web-puolelta
+[x] Submit eventhandler
+[ ] View-mode
+[ ] List mode (admin view)
+[ ] Layout kuntoon
+[x] Deploy Tom EE:n komentoriviltä / Tom EE:lta
+[ ] Dokkarit kuntoon
+[ ] Submit.

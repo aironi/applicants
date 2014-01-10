@@ -12,30 +12,24 @@ import com.vaadin.ui.*;
 import org.silverduck.applicants.common.localization.AppResources;
 import org.silverduck.applicants.domain.Applicant;
 import org.silverduck.applicants.domain.Gender;
-import org.silverduck.applicants.repository.ApplicantsRepo;
 import org.silverduck.applicants.web.ErrorUI;
 
-import javax.annotation.PostConstruct;
 import javax.inject.Inject;
-import java.util.Locale;
 
 /**
- * UI for the Applicant Form
+ * UI for the Applicant Form for applying for a job.
+ *
+ * TODO: Add possibility to add a picture of the applicant
  *
  * @author Iiro Hietala
  */
 @CDIView(ApplicantForm.VIEW)
-public class ApplicantForm extends CustomComponent implements View {
+public class ApplicantForm extends FormLayout implements View {
 
     public static final String VIEW = "ApplicantForm";
 
+    @Inject
     private JPAContainer<Applicant> applicantsContainer;
-
-    @Inject
-    private ApplicantsRepo applicantsRepo;
-
-    @Inject
-    private Locale requestLocale;
 
     @PropertyId("firstName")
     private TextField firstNameField;
@@ -51,12 +45,6 @@ public class ApplicantForm extends CustomComponent implements View {
 
     Button submitButton;
 
-    @PostConstruct
-    protected void init() {
-        applicantsContainer = new JPAContainer<Applicant>(Applicant.class);
-        applicantsContainer.setEntityProvider(applicantsRepo);
-    }
-
     @Override
     public void enter(ViewChangeListener.ViewChangeEvent event) {
         final BeanFieldGroup<Applicant> fieldGroup = new BeanFieldGroup(Applicant.class);
@@ -64,10 +52,10 @@ public class ApplicantForm extends CustomComponent implements View {
         fieldGroup.setItemDataSource(applicant);
 
         // Custom initialization for ComboBox to get data localized
-        genderBox = new ComboBox(AppResources.getLocalizedString("label.gender", requestLocale));
+        genderBox = new ComboBox(AppResources.getLocalizedString("label.gender", getUI().getCurrent().getLocale()));
         for (Gender gender : Gender.values()) {
             genderBox.addItem(gender);
-            genderBox.setItemCaption(gender, AppResources.getLocalizedString(gender.getResourceKey(), requestLocale));
+            genderBox.setItemCaption(gender, AppResources.getLocalizedString(gender.getResourceKey(), getUI().getCurrent().getLocale()));
             genderBox.setImmediate(true);
         }
 
@@ -78,28 +66,29 @@ public class ApplicantForm extends CustomComponent implements View {
         // Set localized captions
         for (Object propertyId : fieldGroup.getBoundPropertyIds()) {
             Field<?> field = fieldGroup.getField(propertyId);
-            field.setCaption(AppResources.getLocalizedString("label." + propertyId, requestLocale));
+            field.setCaption(AppResources.getLocalizedString("label." + propertyId, getUI().getCurrent().getLocale()));
         }
 
-        Button submitButton = new Button(AppResources.getLocalizedString("label.submit", requestLocale));
+        Button submitButton = new Button(AppResources.getLocalizedString("label.submit", getUI().getCurrent().getLocale()));
         submitButton.addClickListener(new Button.ClickListener() {
             public void buttonClick(Button.ClickEvent event) {
                 try {
                     if (fieldGroup.isValid()) {
                         fieldGroup.commit();
                         applicantsContainer.addEntity(applicant);
-                        Notification.show("Committed! Values: " + applicant.toHumanReadable());
                         Page.getCurrent().setUriFragment("!" + ApplicantSummary.VIEW); // To Summary View
+                    } else {
+                        Notification.show(AppResources.getLocalizedString("applicantForm.validationErrorsNotification",
+                                getUI().getCurrent().getLocale()), Notification.Type.TRAY_NOTIFICATION);
                     }
                 } catch (FieldGroup.CommitException e) {
                     getUI().addWindow(new ErrorUI(e));
                     e.printStackTrace(); // TODO: implement some sane logging such as LOG4J
-                    Page.getCurrent().setUriFragment("!"); // To RootView
                 }
             }
         });
 
-        Button cancelButton = new Button(AppResources.getLocalizedString("label.cancel", requestLocale));
+        Button cancelButton = new Button(AppResources.getLocalizedString("label.cancel", getUI().getCurrent().getLocale()));
         cancelButton.addClickListener(new Button.ClickListener() {
 
             @Override
@@ -113,22 +102,14 @@ public class ApplicantForm extends CustomComponent implements View {
         commandButtons.addComponent(submitButton);
         commandButtons.addComponent(cancelButton);
 
-        FormLayout formLayout = new FormLayout();
-        formLayout.addComponent(firstNameField);
-        formLayout.addComponent(lastNameField);
-        formLayout.addComponent(genderBox);
-        formLayout.addComponent(reasons);
-        formLayout.addComponent(commandButtons);
+        Label infoLabel = new Label(AppResources.getLocalizedString("label.applicantForm.formInfo", getUI().getCurrent().getLocale()));
 
-        final VerticalLayout verticalLayout = new VerticalLayout();
-        verticalLayout.setMargin(true);
-        verticalLayout.setDefaultComponentAlignment(Alignment.TOP_LEFT);
-        verticalLayout.setWidth(600, Unit.PIXELS);
-        Table applicantsDebug = new Table("DEBUG Table", applicantsContainer);
-        applicantsDebug.setImmediate(true);
-        formLayout.addComponent(applicantsDebug);
-        verticalLayout.addComponent(formLayout);
-        setCompositionRoot(verticalLayout);
+        addComponent(infoLabel);
+        addComponent(firstNameField);
+        addComponent(lastNameField);
+        addComponent(genderBox);
+        addComponent(reasons);
+        addComponent(commandButtons);
     }
 }
 

@@ -1,18 +1,29 @@
 package org.silverduck.applicants.web;
 
-import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.Label;
+import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 
 /**
- * Created by Iiro on 5.1.2014.
+ * A simple error ui. Quite redundant.
+ *
+ * TODO: Throw away
  */
 public class ErrorUI extends Window {
 
     public ErrorUI(Exception e) {
-        setWidth(400, Unit.PIXELS);
-        setHeight(400, Unit.PIXELS);
-        HorizontalLayout layout = new HorizontalLayout(new Label("An error occurred. Message: "), new Label(e.getMessage()));
+        setWidth(600, Unit.PIXELS);
+        setHeight(600, Unit.PIXELS);
+        Throwable t = e;
+        StringBuffer sb = new StringBuffer(1024);
+        while (t != null) {
+            if (t.getCause() == null) {
+                sb.append(t.getClass().getName()).append("<br/>");
+            }
+            t = t.getCause();
+        }
+        VerticalLayout layout = new VerticalLayout(new Label("An error occurred. Message: "), new Label(sb.toString(), ContentMode.HTML));
 
         setContent(layout);
     }

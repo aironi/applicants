@@ -5,34 +5,27 @@ import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.server.Page;
 import com.vaadin.server.ThemeResource;
-import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
-import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.BaseTheme;
 import org.silverduck.applicants.common.localization.AppResources;
 
 import javax.annotation.PostConstruct;
-import javax.inject.Inject;
-import java.util.Locale;
 
 /**
- * Created by Iiro on 9.1.2014.
+ * The root view of the application.
  */
 @CDIView
-public class RootView extends HorizontalLayout implements View {
-
-    @Inject
-    private Locale requestLocale;
+public class RootView extends VerticalLayout implements View {
 
     @PostConstruct
     public void init() {
         setSizeFull();
-        setDefaultComponentAlignment(Alignment.MIDDLE_CENTER);
 
         Button applyButton = new Button();
         applyButton.setIcon(new ThemeResource("form.png"));
         applyButton.setStyleName(BaseTheme.BUTTON_LINK);
-        applyButton.setCaption(AppResources.getLocalizedString("label.applyForJob", requestLocale));
+        applyButton.setIconAlternateText(AppResources.getLocalizedString("label.applyForJob", getUI().getCurrent().getLocale()));
 
         applyButton.addClickListener(new Button.ClickListener() {
             @Override
@@ -44,11 +37,17 @@ public class RootView extends HorizontalLayout implements View {
 
         Button adminLink = new Button();
         adminLink.setStyleName(BaseTheme.BUTTON_LINK);
-        adminLink.setCaption(AppResources.getLocalizedString("label.adminView", requestLocale));
-
+        adminLink.setCaption(AppResources.getLocalizedString("label.adminView", getUI().getCurrent().getLocale()));
+        adminLink.addClickListener(new Button.ClickListener() {
+            @Override
+            public void buttonClick(Button.ClickEvent event) {
+                Page.getCurrent().setUriFragment("!" + AdminView.VIEW);
+            }
+        });
 
         addComponent(applyButton);
         addComponent(adminLink);
+
     }
 
     @Override

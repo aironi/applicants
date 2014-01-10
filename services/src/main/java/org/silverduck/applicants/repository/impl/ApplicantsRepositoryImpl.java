@@ -1,7 +1,8 @@
-package org.silverduck.applicants.repository;
+package org.silverduck.applicants.repository.impl;
 
 import com.vaadin.addon.jpacontainer.provider.MutableLocalEntityProvider;
 import org.silverduck.applicants.domain.Applicant;
+import org.silverduck.applicants.repository.ApplicantsRepository;
 
 import javax.annotation.PostConstruct;
 import javax.ejb.*;
@@ -11,13 +12,12 @@ import java.util.List;
 
 /**
  * Repository methods that provide Applicant-operations with JTA transcations.
- *
  */
-@Stateless
+@Stateless(name = "applicantsRepository")
 @TransactionManagement(TransactionManagementType.CONTAINER)
 @TransactionAttribute(TransactionAttributeType.REQUIRED)
-public class ApplicantsRepo extends
-        MutableLocalEntityProvider<Applicant> {
+public class ApplicantsRepositoryImpl extends
+        MutableLocalEntityProvider<Applicant> implements ApplicantsRepository {
 
     // Implementation Note:
     // Intentionally named 'poorly'. This has to be something else than 'entityManager'. Otherwise it overrides the
@@ -25,7 +25,7 @@ public class ApplicantsRepo extends
     @PersistenceContext(unitName = "applicants-unit", type = PersistenceContextType.TRANSACTION)
     protected EntityManager em;
 
-    public ApplicantsRepo() {
+    public ApplicantsRepositoryImpl() {
         super(Applicant.class);
         setTransactionsHandledByProvider(false);
     }
@@ -54,6 +54,7 @@ public class ApplicantsRepo extends
         applicant.setUpdated(new Date());
     }
 
+    @Override
     public List<Applicant> listApplicants() {
         return em.createQuery("SELECT applicant FROM Applicant as applicant").getResultList();
     }

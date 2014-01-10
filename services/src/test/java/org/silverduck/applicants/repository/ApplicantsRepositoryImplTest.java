@@ -11,6 +11,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.BlockJUnit4ClassRunner;
 import org.silverduck.applicants.domain.Applicant;
 import org.silverduck.applicants.domain.Gender;
+import org.silverduck.applicants.repository.impl.ApplicantsRepositoryImpl;
 
 import javax.annotation.Resource;
 import javax.ejb.EJB;
@@ -25,7 +26,7 @@ import javax.validation.ConstraintViolationException;
 import java.util.Properties;
 
 /**
- * Integration test for ApplicantsRepo. Designed to be run in Embedded Container.
+ * Integration test for ApplicantsRepositoryImpl. Designed to be run in Embedded Container.
  * No mocking.
  * <p/>
  * Created by Iiro on 6.1.2014.
@@ -33,9 +34,9 @@ import java.util.Properties;
 
 @RunWith(BlockJUnit4ClassRunner.class)
 @LocalClient
-public class ApplicantsRepoTest extends TestCase {
+public class ApplicantsRepositoryImplTest extends TestCase {
     @EJB
-    private ApplicantsRepo applicantsRepo;
+    private ApplicantsRepositoryImpl applicantsRepositoryImpl;
 
     @PersistenceContext
     private EntityManager entityManager;
@@ -63,7 +64,7 @@ public class ApplicantsRepoTest extends TestCase {
     public void testValidation() {
         Applicant applicant = new Applicant();
         try {
-            applicantsRepo.addEntity(applicant);
+            applicantsRepositoryImpl.addEntity(applicant);
         } catch (EJBTransactionRolledbackException e) {
             if (!ConstraintViolationException.class.equals(e.getCause().getClass())) {
                 throw e;
@@ -79,7 +80,7 @@ public class ApplicantsRepoTest extends TestCase {
     public void testAdd() {
         Applicant applicant = new Applicant();
         populateApplicant(applicant);
-        applicantsRepo.addEntity(applicant);
+        applicantsRepositoryImpl.addEntity(applicant);
         Assert.assertEquals("Wrong amount of applicants in Db", 1, entityManager.createQuery("SELECT a from Applicant AS a").getResultList().size());
     }
 
@@ -88,11 +89,11 @@ public class ApplicantsRepoTest extends TestCase {
         Applicant applicant = new Applicant();
         populateApplicant(applicant);
 
-        Applicant persistedApplicant = applicantsRepo.addEntity(applicant);
-        assertEquals("Entity was not persisted", 1, applicantsRepo.listApplicants().size());
+        Applicant persistedApplicant = applicantsRepositoryImpl.addEntity(applicant);
+        assertEquals("Entity was not persisted", 1, applicantsRepositoryImpl.listApplicants().size());
 
-        applicantsRepo.removeEntity(persistedApplicant.getId());
-        assertEquals("Entity was not removed", 0, applicantsRepo.listApplicants().size());
+        applicantsRepositoryImpl.removeEntity(persistedApplicant.getId());
+        assertEquals("Entity was not removed", 0, applicantsRepositoryImpl.listApplicants().size());
 
     }
 

@@ -4,7 +4,6 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
-import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.io.Serializable;
 
@@ -14,23 +13,20 @@ import java.io.Serializable;
 @Entity
 public class Applicant extends AbstractDomainObject implements Serializable {
 
-    @NotNull(message = "{applicant.firstName.notNull") // TODO: is NotNull quite redundant here
     @Size(min = 1, max = 30, message = "{applicant.firstName.size}")
     @Column(name = "FirstName")
     private String firstName;
 
-    @NotNull(message = "{applicant.lastName.notNull}") // TODO: is NotNull quite redundant here
     @Size(min = 1, max = 30, message = "{applicant.lastName.size}")
     @Column(name = "LastName")
     private String lastName;
 
-    @NotNull(message = "{applicant.gender.notNull}")
     @Column(name = "Gender")
     @Enumerated(EnumType.STRING)
     private Gender gender;
 
-    @NotNull(message = "{applicant.reasons.notNull}")
-    @Column(name = "Reasons")
+    @Size(max = 100000, message = "{applicant.reasons.size}")
+    @Column(name = "Reasons", length = 100000)
     private String reasons;
 
     public String getFirstName() {

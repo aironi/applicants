@@ -5,6 +5,7 @@ import com.vaadin.annotations.Theme;
 import com.vaadin.cdi.CDIUI;
 import com.vaadin.cdi.CDIViewProvider;
 import com.vaadin.navigator.Navigator;
+import com.vaadin.server.Page;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.UI;
@@ -47,6 +48,15 @@ public class ApplicantsUI extends UI {
         Navigator navigator = new Navigator(this, horizontalLayout);
         navigator.addProvider(viewProvider);
         setContent(horizontalLayout);
+    }
+
+    /**
+     * Helper method to navigate between Views.
+     *
+     * @param view View name defined for a CDIView
+     */
+    public static void navigateTo(String view) {
+        Page.getCurrent().setUriFragment("!" + view);
     }
 
 }

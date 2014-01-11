@@ -1,6 +1,7 @@
 package org.silverduck.applicants.common.localization;
 
 import java.util.Locale;
+import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
 /**
@@ -17,6 +18,13 @@ public class AppResources {
      */
     public static final String getLocalizedString(String resourceKey, Locale locale) {
         ResourceBundle bundle = ResourceBundle.getBundle("uiResources", locale);
-        return bundle.getString(resourceKey);
+        String resourceText;
+        try {
+            resourceText = bundle.getString(resourceKey);
+        } catch (MissingResourceException e) {
+            e.printStackTrace(); //TODO: Use LOG4J
+            resourceText = "'" + resourceKey + "' (resource missing)";
+        }
+        return resourceText;
     }
 }

@@ -9,9 +9,24 @@
   @include runo;
 
   /* Insert your theme rules here */
-  $color: white;
-  .body {
-    background: $color;
+  $white: white;
+
+  .v-verticallayout {
+    @extend .v-verticallayout;
+    background: $white;
+  }
+
+  .v-horizontallayout {
+    @extend .v-horizontallayout;
+    background: $white;
+  }
+
+  .orange-border-button {
+    border: 1px solid orangered;
+  }
+
+  .orange-border-icon {
+    border: 1px solid orangered;
   }
 
 }

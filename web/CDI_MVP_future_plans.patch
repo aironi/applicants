@@ -1,0 +1,164 @@
+Index: web/src/main/java/org/silverduck/applicants/web/org/silverduck/applicants/web/org/silverduck/applicant/web/presenter/ApplicantViewImpl.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- web/src/main/java/org/silverduck/applicants/web/org/silverduck/applicants/web/org/silverduck/applicant/web/presenter/ApplicantViewImpl.java	(revision )
++++ web/src/main/java/org/silverduck/applicants/web/org/silverduck/applicants/web/org/silverduck/applicant/web/presenter/ApplicantViewImpl.java	(revision )
+@@ -0,0 +1,41 @@
++package org.silverduck.applicants.web.org.silverduck.applicants.web.org.silverduck.applicant.web.presenter;
++
++import org.silverduck.applicants.domain.Applicant;
++import org.silverduck.applicants.web.ApplicantsUI;
++import org.silverduck.applicants.web.org.silverduck.applicants.web.view.ApplicantForm;
++import org.silverduck.applicants.web.org.silverduck.applicants.web.view.ApplicantSummary;
++import org.silverduck.applicants.web.org.silverduck.applicants.web.view.RootView;
++
++import javax.inject.Inject;
++
++/**
++ * Created by Iiro on 11.1.2014.
++ */
++public class ApplicantViewImpl implements ApplicantView {
++
++
++    @Inject
++    private ApplicantForm applicantForm;
++
++    @Override
++    public void selectApplicant(Applicant applicant) {
++        // TODO
++    }
++
++    @Override
++    public void addApplicant(Applicant applicant) {
++        applicantForm.edit(new Applicant());
++        ApplicantsUI.navigateTo(ApplicantForm.VIEW);
++    }
++
++    @Override
++    public void viewApplicant(Applicant applicant) {
++        applicantForm.view(applicant);
++        ApplicantsUI.navigateTo(ApplicantSummary.VIEW);
++    }
++
++    @Override
++    public void cancelAdd() {
++        ApplicantsUI.navigateTo(RootView.VIEW);
++    }
++}
+Index: web/src/main/java/org/silverduck/applicants/web/org/silverduck/applicants/web/org/silverduck/applicant/web/presenter/ApplicantPresenter.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- web/src/main/java/org/silverduck/applicants/web/org/silverduck/applicants/web/org/silverduck/applicant/web/presenter/ApplicantPresenter.java	(revision )
++++ web/src/main/java/org/silverduck/applicants/web/org/silverduck/applicants/web/org/silverduck/applicant/web/presenter/ApplicantPresenter.java	(revision )
+@@ -0,0 +1,66 @@
++package org.silverduck.applicants.web.org.silverduck.applicants.web.org.silverduck.applicant.web.presenter;
++
++
++import com.vaadin.addon.jpacontainer.JPAContainer;
++import org.silverduck.applicants.domain.Applicant;
++import org.vaadin.addon.cdimvp.AbstractMVPPresenter;
++import org.vaadin.addon.cdimvp.AbstractMVPPresenter.ViewInterface;
++import org.vaadin.addon.cdimvp.CDIEvent;
++import org.vaadin.addon.cdimvp.ParameterDTO;
++
++import javax.enterprise.event.Observes;
++import javax.inject.Inject;
++
++/**
++ * Created by Iiro on 11.1.2014.
++ */
++@ViewInterface(ApplicantView.class)
++public class ApplicantPresenter extends AbstractMVPPresenter<ApplicantView> {
++
++    @Inject
++    private JPAContainer<Applicant> applicantsContainer;
++
++
++    // Possible View Events
++
++    public static final String SELECT_APPLICANT = "SelectApplicant";
++
++    public static final String VIEW_APPLICANT = "ViewApplicant";
++
++    public static final String ADD_APPLICANT = "AddApplicant";
++
++    public static final String CANCEL_ADD = "CancelAdd";
++
++
++    @Inject
++    private ApplicantViewImpl applicantView;
++
++    /*
++     * This method nicely demonstrates how the control logic over views can be
++     * handled in presenters: If the person isn't persistent yet, the view is
++     * told to add the newly persisted person to the navigation tree. Otherwise
++     * the view is only told to set the person selected.
++     */
++    protected void addApplicant(@Observes @CDIEvent(ADD_APPLICANT) final ParameterDTO parameters) {
++        Applicant applicant = parameters.getPrimaryParameter(Applicant.class);
++        applicantsContainer.addEntity(applicant);
++        view.viewApplicant(applicant);
++    }
++
++    protected void viewApplicant(@Observes @CDIEvent(VIEW_APPLICANT) final ParameterDTO parameters) {
++        view.viewApplicant(parameters.getPrimaryParameter(Applicant.class));
++    }
++
++    protected void cancelAdd(@Observes @CDIEvent(CANCEL_ADD) final ParameterDTO parameters) {
++        view.cancelAdd();
++    }
++
++    protected void selectApplicant(@Observes @CDIEvent(SELECT_APPLICANT) final ParameterDTO parameters) {
++        view.selectApplicant(parameters.getPrimaryParameter(Applicant.class));
++    }
++
++    @Override
++    public void viewEntered() {
++
++    }
++}
+Index: web/src/main/java/org/silverduck/applicants/web/org/silverduck/applicants/web/org/silverduck/applicant/web/presenter/ApplicantView.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- web/src/main/java/org/silverduck/applicants/web/org/silverduck/applicants/web/org/silverduck/applicant/web/presenter/ApplicantView.java	(revision )
++++ web/src/main/java/org/silverduck/applicants/web/org/silverduck/applicants/web/org/silverduck/applicant/web/presenter/ApplicantView.java	(revision )
+@@ -0,0 +1,33 @@
++package org.silverduck.applicants.web.org.silverduck.applicants.web.org.silverduck.applicant.web.presenter;
++
++import org.silverduck.applicants.domain.Applicant;
++import org.vaadin.addon.cdimvp.MVPView;
++
++/**
++ * View interface for Applicant operations
++ */
++public interface ApplicantView extends MVPView {
++
++    /**
++     * Select an applicant
++     *
++     * @param applicant
++     */
++    void selectApplicant(Applicant applicant);
++
++    /**
++     * Start editing of an applicant
++     */
++    void addApplicant(Applicant applicant);
++
++    /**
++     * Start viewing of the previously selected applicant
++     */
++    void viewApplicant(Applicant applicant);
++
++
++    /**
++     * Cancel Adding of an Applicant
++     */
++    void cancelAdd();
++}

@@ -4,6 +4,7 @@ import com.vaadin.addon.jpacontainer.JPAContainer;
 import com.vaadin.cdi.CDIView;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
+import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Table;
 import com.vaadin.ui.VerticalLayout;
@@ -32,6 +33,7 @@ public class AdminView extends VerticalLayout implements View {
     @PostConstruct
     protected void init() {
         setSizeFull();
+        setDefaultComponentAlignment(Alignment.MIDDLE_CENTER);
         setSpacing(true);
 
         Table applicantsTable = new Table(AppResources.getLocalizedString("label.applicants", getUI().getCurrent().getLocale()),

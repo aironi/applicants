@@ -48,6 +48,8 @@ public class ApplicantForm extends VerticalLayout implements View {
     @PropertyId("reasons")
     private TextArea reasons;
 
+    private Label headerLabel;
+
     private Label infoLabel;
 
     private HorizontalLayout commandButtons;
@@ -65,9 +67,6 @@ public class ApplicantForm extends VerticalLayout implements View {
     }
 
     private void bindFields(Applicant applicant) {
-        if (fieldGroup != null) {
-            fieldGroup.discard();
-        }
         fieldGroup = new BeanFieldGroup(Applicant.class);
         fieldGroup.setItemDataSource(new BeanItem<Applicant>(applicant));
         fieldGroup.setBuffered(true);
@@ -87,10 +86,12 @@ public class ApplicantForm extends VerticalLayout implements View {
     @Override
     public void setReadOnly(boolean readOnly) {
         super.setReadOnly(readOnly);
+
         firstNameField.setReadOnly(readOnly);
         lastNameField.setReadOnly(readOnly);
         genderBox.setReadOnly(readOnly);
         reasons.setReadOnly(readOnly);
+        headerLabel.setVisible(!readOnly);
         infoLabel.setVisible(!readOnly);
         commandButtons.setVisible(!readOnly);
     }
@@ -117,9 +118,15 @@ public class ApplicantForm extends VerticalLayout implements View {
             public void buttonClick(Button.ClickEvent event) {
                 try {
                     if (fieldGroup.isValid()) {
-                        fieldGroup.commit(); // Bind to Entity
-                        Object id = applicantsContainer.addEntity(fieldGroup.getItemDataSource().getBean());
-                        view(fieldGroup.getItemDataSource().getBean());
+                        fieldGroup.commit(); // Bind to Bean
+
+                        // Since we're using detached entities up to this point, this may be done
+                        // as follows. Still, it's not pretty.
+                        // TODO: We should be using MVP pattern instead.
+
+                        Applicant applicant = fieldGroup.getItemDataSource().getBean();
+                        applicantsContainer.addEntity(applicant);
+                        view(applicant);
                         ApplicantsUI.navigateTo(ApplicantSummary.VIEW);
 
                         // fireViewEvent(ApplicantPresenter.ADD_APPLICANT, fieldGroup.getItemDataSource().getBean());
@@ -149,7 +156,7 @@ public class ApplicantForm extends VerticalLayout implements View {
         commandButtons.addComponent(submitButton);
         commandButtons.addComponent(cancelButton);
 
-        Label headerLabel = new Label(AppResources.getLocalizedString("label.applicantForm.formHeader", getUI().getCurrent().getLocale()));
+        headerLabel = new Label(AppResources.getLocalizedString("label.applicantForm.formHeader", getUI().getCurrent().getLocale()));
         headerLabel.setStyleName(Runo.LABEL_H2);
 
         infoLabel = new Label(AppResources.getLocalizedString("label.applicantForm.formInfo", getUI().getCurrent().getLocale()));

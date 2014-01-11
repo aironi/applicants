@@ -32,14 +32,21 @@ public class RootView extends VerticalLayout implements View {
     @PostConstruct
     public void init() {
         setSizeFull();
-        setDefaultComponentAlignment(Alignment.MIDDLE_CENTER);
+        setDefaultComponentAlignment(Alignment.TOP_CENTER);
+        HorizontalLayout horizontalLayout = new HorizontalLayout();
+        horizontalLayout.setSizeFull();
+        horizontalLayout.setDefaultComponentAlignment(Alignment.TOP_CENTER);
+        addComponent(horizontalLayout);
 
-        createCompanyInfoSection(); // Horizontal Layout in the top
-        createApplyButton(); // Button with Image and Link
-        createAdminLink(); // Button with Image and Link
+        VerticalLayout contentLayout = new VerticalLayout();
+        contentLayout.setDefaultComponentAlignment(Alignment.TOP_CENTER);
+        createCompanyInfoSection(contentLayout);
+        createApplyButton(contentLayout); // Button with Image and Link
+        createAdminLink(contentLayout); // Button with Image and Link
+        horizontalLayout.addComponent(contentLayout);
     }
 
-    private void createAdminLink() {
+    private void createAdminLink(VerticalLayout layout) {
         Button adminLink = new Button();
         adminLink.setIcon(new ThemeResource("administrator.png"));
         adminLink.setCaption(AppResources.getLocalizedString("label.adminView", getUI().getCurrent().getLocale()));
@@ -49,47 +56,61 @@ public class RootView extends VerticalLayout implements View {
                 ApplicantsUI.navigateTo(AdminView.VIEW);
             }
         });
-        addComponent(adminLink);
         adminLink.addStyleName(BaseTheme.BUTTON_LINK);
-        setComponentAlignment(adminLink, Alignment.BOTTOM_CENTER);
+        layout.addComponent(adminLink);
+        layout.setComponentAlignment(adminLink, Alignment.BOTTOM_CENTER);
+        layout.setExpandRatio(adminLink, 2);
     }
 
-    private void createApplyButton() {
+    private final void redirectToEditApplicant() {
+        // Redirect to ApplicantForm.
+        applicantForm.edit(new Applicant().resetFields());
+        ApplicantsUI.navigateTo(ApplicantForm.VIEW);
+    }
+
+    private void createApplyButton(VerticalLayout layout) {
         Button applyButton = new Button();
         applyButton.setIcon(new ThemeResource("form.png"));
-        applyButton.setCaption(AppResources.getLocalizedString("label.applyForJob", getUI().getCurrent().getLocale()));
-
         applyButton.addClickListener(new Button.ClickListener() {
             @Override
             public void buttonClick(Button.ClickEvent event) {
-                // Redirect to ApplicantForm.
-                applicantForm.edit(new Applicant().resetFields());
-                ApplicantsUI.navigateTo(ApplicantForm.VIEW);
+                redirectToEditApplicant();
             }
         });
         applyButton.addStyleName(BaseTheme.BUTTON_LINK);
         applyButton.addStyleName("orange-border-button");
-        addComponent(applyButton);
+        layout.addComponent(applyButton);
+        layout.setExpandRatio(applyButton, 5);
+
+        // Had to do it this way. Didn't manage to get the Label behave nicely with Button.
+        Button applyLink = new Button();
+        applyLink.setCaption(AppResources.getLocalizedString("label.applyForJob", getUI().getCurrent().getLocale()));
+        applyLink.addStyleName(BaseTheme.BUTTON_LINK);
+        applyLink.addClickListener(new Button.ClickListener() {
+            @Override
+            public void buttonClick(Button.ClickEvent event) {
+                redirectToEditApplicant();
+            }
+        });
+
+        layout.addComponent(applyLink);
     }
 
-    private HorizontalLayout createCompanyInfoSection() {
+    private void createCompanyInfoSection(VerticalLayout layout) {
         Image silverDuck = new Image();
-        //silverDuck.addStyleName("orange-border-icon");
         silverDuck.setIcon(new ThemeResource("silverduck.png"));
-        silverDuck.addStyleName(BaseTheme.BUTTON_LINK);
-        silverDuck.addStyleName("orange-border-button");
 
         Label companyInfoLabel = new Label(AppResources.getLocalizedString("label.companyInfo", getUI().getCurrent().getLocale()), ContentMode.HTML);
         HorizontalLayout companyInfoLayout = new HorizontalLayout();
-
+        companyInfoLayout.setDefaultComponentAlignment(Alignment.MIDDLE_CENTER);
         companyInfoLayout.addComponent(silverDuck);
         companyInfoLayout.addComponent(companyInfoLabel);
-        companyInfoLayout.setWidth(55, Unit.PERCENTAGE);
-        companyInfoLayout.setMargin(true);
+
         companyInfoLayout.setExpandRatio(silverDuck, 1);
-        companyInfoLayout.setExpandRatio(companyInfoLabel, 5);
-        addComponent(companyInfoLayout);
-        return companyInfoLayout;
+        companyInfoLayout.setExpandRatio(companyInfoLabel, 4);
+        companyInfoLayout.setWidth(600, Unit.PIXELS);
+        layout.addComponent(companyInfoLayout);
+        layout.setExpandRatio(companyInfoLayout, 3);
     }
 
     @Override

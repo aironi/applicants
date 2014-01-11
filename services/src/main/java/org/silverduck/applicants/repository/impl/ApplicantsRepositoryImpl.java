@@ -54,7 +54,14 @@ public class ApplicantsRepositoryImpl extends
         applicant.setUpdated(new Date());
     }
 
+    /**
+     * Lists all Applicants.
+     *
+     * @return
+     * @deprecated Not in use
+     */
     @Override
+    @Deprecated
     public List<Applicant> listApplicants() {
         return em.createQuery("SELECT applicant FROM Applicant as applicant").getResultList();
     }

@@ -40,6 +40,8 @@ public class RootView extends VerticalLayout implements View {
 
         VerticalLayout contentLayout = new VerticalLayout();
         contentLayout.setDefaultComponentAlignment(Alignment.TOP_CENTER);
+        contentLayout.setSpacing(true);
+
         createCompanyInfoSection(contentLayout);
         createApplyButton(contentLayout); // Button with Image and Link
         createAdminLink(contentLayout); // Button with Image and Link
@@ -102,12 +104,16 @@ public class RootView extends VerticalLayout implements View {
 
         Label companyInfoLabel = new Label(AppResources.getLocalizedString("label.companyInfo", getUI().getCurrent().getLocale()), ContentMode.HTML);
         HorizontalLayout companyInfoLayout = new HorizontalLayout();
+
         companyInfoLayout.setDefaultComponentAlignment(Alignment.MIDDLE_CENTER);
         companyInfoLayout.addComponent(silverDuck);
         companyInfoLayout.addComponent(companyInfoLabel);
 
         companyInfoLayout.setExpandRatio(silverDuck, 1);
         companyInfoLayout.setExpandRatio(companyInfoLabel, 4);
+
+        companyInfoLabel.setWidth(350, Unit.PIXELS);
+        companyInfoLayout.setHeight(200, Unit.PIXELS);
         companyInfoLayout.setWidth(600, Unit.PIXELS);
         layout.addComponent(companyInfoLayout);
         layout.setExpandRatio(companyInfoLayout, 3);

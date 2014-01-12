@@ -27,8 +27,6 @@ public class ApplicantSummary extends VerticalLayout implements View {
     @EJB
     private ApplicantsRepository applicantsRepository;
 
-    private Applicant applicant;
-
     private ApplicantComponent applicantComponent;
 
     private Button backButton;

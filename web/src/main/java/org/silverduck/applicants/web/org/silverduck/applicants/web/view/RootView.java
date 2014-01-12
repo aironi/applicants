@@ -80,13 +80,6 @@ public class RootView extends VerticalLayout implements View {
 
         // Had to insert a separate link since I didn't manage to get the Label behave nicely with Button in short time.
         applyLink.addStyleName(BaseTheme.BUTTON_LINK);
-        applyLink.addClickListener(new Button.ClickListener() {
-            @Override
-            public void buttonClick(Button.ClickEvent event) {
-                ApplicantsUI.navigateTo(ApplicantForm.VIEW, applicantId);
-            }
-        });
-
         layout.addComponent(applyLink);
     }
 
@@ -130,5 +123,11 @@ public class RootView extends VerticalLayout implements View {
             applyLink.setCaption(AppResources.getLocalizedString("label.modifyApplication", getUI().getCurrent().getLocale()));
         }
 
+        applyLink.addClickListener(new Button.ClickListener() {
+            @Override
+            public void buttonClick(Button.ClickEvent event) {
+                ApplicantsUI.navigateTo(ApplicantForm.VIEW, applicantId);
+            }
+        });
     }
 }

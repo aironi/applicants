@@ -1,6 +1,5 @@
 package org.silverduck.applicants.web.org.silverduck.applicants.web.component;
 
-import com.vaadin.addon.jpacontainer.JPAContainer;
 import com.vaadin.data.fieldgroup.BeanFieldGroup;
 import com.vaadin.data.fieldgroup.FieldGroup;
 import com.vaadin.data.fieldgroup.PropertyId;
@@ -11,14 +10,10 @@ import org.silverduck.applicants.domain.Applicant;
 import org.silverduck.applicants.domain.Gender;
 import org.silverduck.applicants.web.ErrorUI;
 
-import javax.inject.Inject;
-
 /**
  * Common component for showing Applicant data in a FormLayout.
  */
 public class ApplicantComponent extends CustomComponent {
-    @Inject
-    private JPAContainer<Applicant> applicantsContainer;
 
     @PropertyId("firstName")
     private TextField firstNameField;

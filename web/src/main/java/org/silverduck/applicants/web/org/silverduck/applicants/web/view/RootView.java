@@ -11,19 +11,12 @@ import org.apache.commons.lang3.StringUtils;
 import org.silverduck.applicants.common.localization.AppResources;
 import org.silverduck.applicants.web.ApplicantsUI;
 
-import javax.annotation.PostConstruct;
-import javax.inject.Inject;
-
 /**
  * The root view of the application.
  */
 @CDIView
 public class RootView extends VerticalLayout implements View {
-
     public static final String VIEW = "";
-
-    @Inject
-    private ApplicantForm applicantForm;
 
     private Long applicantId;
 
@@ -32,8 +25,7 @@ public class RootView extends VerticalLayout implements View {
     private Button applyLink;
 
 
-    @PostConstruct
-    public void init() {
+    public RootView() {
         setSizeFull();
         setDefaultComponentAlignment(Alignment.TOP_CENTER);
         HorizontalLayout horizontalLayout = new HorizontalLayout();

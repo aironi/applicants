@@ -8,7 +8,9 @@
     <name>Applicants Build</name>
 
     <profiles>
-        <!-- IH: Environment specific profiles (for Production / Test) !-->
+        <!-- Environment specific profiles (for Production / Test).
+         NOT IN USE at the moment.
+        !-->
         <profile>
             <id>prod</id>
             <properties>

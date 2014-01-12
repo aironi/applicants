@@ -54,7 +54,6 @@ public class ApplicantComponent extends CustomComponent {
         formLayout.addComponent(lastNameField);
         formLayout.addComponent(genderBox);
         formLayout.addComponent(reasons);
-
         setCompositionRoot(formLayout);
     }
 

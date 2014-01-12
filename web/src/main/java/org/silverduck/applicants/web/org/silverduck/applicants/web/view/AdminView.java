@@ -10,7 +10,6 @@ import org.silverduck.applicants.common.localization.AppResources;
 import org.silverduck.applicants.domain.Applicant;
 import org.silverduck.applicants.web.ApplicantsUI;
 
-import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
 /**
@@ -27,8 +26,7 @@ public class AdminView extends VerticalLayout implements View {
     @Inject
     private JPAContainer<Applicant> applicantsContainer;
 
-    @PostConstruct
-    protected void init() {
+    public AdminView() {
         setSizeFull();
         setDefaultComponentAlignment(Alignment.MIDDLE_CENTER);
 

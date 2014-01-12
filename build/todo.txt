@@ -8,10 +8,12 @@ TODO:
 [x] Submit eventhandler
 [x] View-mode
 [x] List mode (admin view)
-[ ] Layout kuntoon
+[x] Layout kuntoon
 [x] Deploy Tom EE:n komentoriviltä / Tom EE:lta
-[ ] Dokkarit kuntoon
-[ ] Submit.
+[x] Dokkarit kuntoon
+[x] Submit.
 
 
-[ } Tom EE detects MemoryLeak when stopping server. Investigate root cause
+[ ] Tom EE detects MemoryLeak when stopping server. Investigate root cause
+[ ] Take Vaadin MVP addon into use
+[ ] Really fix the layout

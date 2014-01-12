@@ -12,7 +12,6 @@ import org.silverduck.applicants.repository.ApplicantsRepository;
 import org.silverduck.applicants.web.ApplicantsUI;
 import org.silverduck.applicants.web.org.silverduck.applicants.web.component.ApplicantComponent;
 
-import javax.annotation.PostConstruct;
 import javax.ejb.EJB;
 
 /**
@@ -38,14 +37,39 @@ public class ApplicantForm extends VerticalLayout implements View {
 
     private ApplicantComponent applicantComponent;
 
-    @PostConstruct
-    protected void initComponent() {
+    public ApplicantForm() {
         setSizeFull();
         setDefaultComponentAlignment(Alignment.MIDDLE_CENTER);
         HorizontalLayout horizontalLayout = new HorizontalLayout();
         horizontalLayout.setDefaultComponentAlignment(Alignment.MIDDLE_CENTER);
         addComponent(horizontalLayout);
 
+        VerticalLayout contentLayout = new VerticalLayout();
+        contentLayout.setDefaultComponentAlignment(Alignment.TOP_LEFT);
+
+        createHeaderLabels(contentLayout);
+        createApplicantComponent(contentLayout);
+        createCommandButtons(contentLayout);
+
+        horizontalLayout.addComponent(contentLayout);
+    }
+
+    private void createApplicantComponent(VerticalLayout contentLayout) {
+        applicantComponent = new ApplicantComponent();
+        contentLayout.addComponent(applicantComponent);
+    }
+
+    private void createHeaderLabels(VerticalLayout contentLayout) {
+        headerLabel = new Label(AppResources.getLocalizedString("label.applicantForm.formHeader", getUI().getCurrent().getLocale()));
+        headerLabel.setStyleName(Runo.LABEL_H2);
+        contentLayout.addComponent(headerLabel);
+        infoLabel = new Label(AppResources.getLocalizedString("label.applicantForm.formInfo", getUI().getCurrent().getLocale()));
+        infoLabel.setStyleName(Runo.LABEL_SMALL);
+        contentLayout.addComponent(infoLabel);
+
+    }
+
+    private void createCommandButtons(VerticalLayout contentLayout) {
         Button submitButton = new Button(AppResources.getLocalizedString("label.submit", getUI().getCurrent().getLocale()));
         submitButton.addClickListener(new Button.ClickListener() {
             public void buttonClick(Button.ClickEvent event) {
@@ -81,28 +105,10 @@ public class ApplicantForm extends VerticalLayout implements View {
                 // fireViewEvent(ApplicantPresenter.CANCEL_ADD, null);
             }
         });
-
         commandButtons = new HorizontalLayout();
         commandButtons.addComponent(submitButton);
         commandButtons.addComponent(cancelButton);
-
-        headerLabel = new Label(AppResources.getLocalizedString("label.applicantForm.formHeader", getUI().getCurrent().getLocale()));
-        headerLabel.setStyleName(Runo.LABEL_H2);
-
-        infoLabel = new Label(AppResources.getLocalizedString("label.applicantForm.formInfo", getUI().getCurrent().getLocale()));
-        infoLabel.setStyleName(Runo.LABEL_SMALL);
-
-        applicantComponent = new ApplicantComponent();
-
-        VerticalLayout contentLayout = new VerticalLayout();
-        contentLayout.setDefaultComponentAlignment(Alignment.TOP_LEFT);
-        contentLayout.setSizeFull();
-        contentLayout.addComponent(headerLabel);
-        contentLayout.addComponent(infoLabel);
-        contentLayout.addComponent(applicantComponent);
         contentLayout.addComponent(commandButtons);
-
-        horizontalLayout.addComponent(contentLayout);
     }
 
     @Override
@@ -113,7 +119,6 @@ public class ApplicantForm extends VerticalLayout implements View {
         } else {
             applicantComponent.edit(new Applicant().resetFields());
         }
-
     }
 }
 

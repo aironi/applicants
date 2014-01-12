@@ -14,7 +14,6 @@ import org.silverduck.applicants.repository.ApplicantsRepository;
 import org.silverduck.applicants.web.ApplicantsUI;
 import org.silverduck.applicants.web.org.silverduck.applicants.web.component.ApplicantComponent;
 
-import javax.annotation.PostConstruct;
 import javax.ejb.EJB;
 
 /**
@@ -31,8 +30,7 @@ public class ApplicantSummary extends VerticalLayout implements View {
 
     private Button backButton;
 
-    @PostConstruct
-    protected void init() {
+    public ApplicantSummary() {
         setDefaultComponentAlignment(Alignment.MIDDLE_CENTER);
         setSizeFull();
         HorizontalLayout horizontalLayout = new HorizontalLayout();
@@ -44,40 +42,43 @@ public class ApplicantSummary extends VerticalLayout implements View {
         contentLayout.setDefaultComponentAlignment(Alignment.TOP_CENTER);
         horizontalLayout.addComponent(contentLayout);
 
-        Image thumbsUpImage = new Image();
-        thumbsUpImage.setIcon(new ThemeResource("thumbsup.png"));
+        createContent(contentLayout);
+        createBackButton(contentLayout);
+    }
 
-        Label thankYouLabel = new Label(AppResources.getLocalizedString("applicantSummary.thanks", getUI().getCurrent().getLocale()));
-        thankYouLabel.setStyleName(Runo.LABEL_H2);
-
+    private void createBackButton(VerticalLayout contentLayout) {
         backButton = new Button();
         backButton.setCaption(AppResources.getLocalizedString("label.backToStart", getUI().getCurrent().getLocale()));
         backButton.setStyleName(BaseTheme.BUTTON_LINK);
+        contentLayout.addComponent(backButton);
+        contentLayout.setComponentAlignment(backButton, Alignment.BOTTOM_CENTER);
+        contentLayout.setExpandRatio(backButton, 1);
+    }
+
+    private void createContent(VerticalLayout contentLayout) {
+        Label thankYouLabel = new Label(AppResources.getLocalizedString("applicantSummary.thanks", getUI().getCurrent().getLocale()));
+        thankYouLabel.setStyleName(Runo.LABEL_H2);
 
         VerticalLayout rightSideLayout = new VerticalLayout();
         rightSideLayout.setDefaultComponentAlignment(Alignment.MIDDLE_CENTER);
         rightSideLayout.addComponent(thankYouLabel);
-
         applicantComponent = new ApplicantComponent();
         rightSideLayout.addComponent(applicantComponent);
 
         HorizontalLayout thumbsAndDataLayout = new HorizontalLayout();
+        Image thumbsUpImage = new Image();
+        thumbsUpImage.setIcon(new ThemeResource("thumbsup.png"));
         thumbsAndDataLayout.addComponent(thumbsUpImage);
         thumbsAndDataLayout.addComponent(rightSideLayout);
         thumbsAndDataLayout.setExpandRatio(thumbsUpImage, 4);
         thumbsAndDataLayout.setExpandRatio(rightSideLayout, 6);
 
         contentLayout.addComponent(thumbsAndDataLayout);
-        contentLayout.addComponent(backButton);
-
-        contentLayout.setComponentAlignment(backButton, Alignment.BOTTOM_CENTER);
         contentLayout.setExpandRatio(thumbsAndDataLayout, 9);
-        contentLayout.setExpandRatio(backButton, 1);
     }
 
     @Override
     public void enter(ViewChangeListener.ViewChangeEvent event) {
-
         if (!StringUtils.isEmpty(event.getParameters())) {
             String id = event.getParameters();
             final Applicant applicant = applicantsRepository.findApplicant(Long.parseLong(id));

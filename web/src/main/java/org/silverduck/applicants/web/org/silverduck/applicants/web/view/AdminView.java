@@ -4,10 +4,7 @@ import com.vaadin.addon.jpacontainer.JPAContainer;
 import com.vaadin.cdi.CDIView;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
-import com.vaadin.ui.Alignment;
-import com.vaadin.ui.Button;
-import com.vaadin.ui.Table;
-import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.*;
 import com.vaadin.ui.themes.BaseTheme;
 import org.silverduck.applicants.common.localization.AppResources;
 import org.silverduck.applicants.domain.Applicant;
@@ -34,11 +31,18 @@ public class AdminView extends VerticalLayout implements View {
     protected void init() {
         setSizeFull();
         setDefaultComponentAlignment(Alignment.MIDDLE_CENTER);
-        setSpacing(true);
+
+        HorizontalLayout horizontalLayout = new HorizontalLayout();
+        horizontalLayout.setDefaultComponentAlignment(Alignment.MIDDLE_CENTER);
+
+        addComponent(horizontalLayout);
+
+        VerticalLayout contentLayout = new VerticalLayout();
+        horizontalLayout.addComponent(contentLayout);
 
         Table applicantsTable = new Table(AppResources.getLocalizedString("label.applicants", getUI().getCurrent().getLocale()),
                 applicantsContainer);
-        applicantsTable.setVisibleColumns("id", "created", "updated", "firstName", "lastName", "gender", "reasons");
+        applicantsTable.setVisibleColumns("firstName", "lastName", "gender", "reasons");
         applicantsTable.setImmediate(true);
 /*
         applicantsDebug.addItemClickListener(new ItemClickEvent.ItemClickListener() {
@@ -54,11 +58,11 @@ public class AdminView extends VerticalLayout implements View {
         backButton.addClickListener(new Button.ClickListener() {
             @Override
             public void buttonClick(Button.ClickEvent event) {
-                ApplicantsUI.navigateTo(RootView.VIEW); // To Root View
+                ApplicantsUI.navigateTo(RootView.VIEW, null); // To Root View
             }
         });
-        addComponent(applicantsTable);
-        addComponent(backButton);
+        contentLayout.addComponent(applicantsTable);
+        contentLayout.addComponent(backButton);
     }
 
     @Override

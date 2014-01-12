@@ -7,11 +7,15 @@ import com.vaadin.server.ThemeResource;
 import com.vaadin.ui.*;
 import com.vaadin.ui.themes.BaseTheme;
 import com.vaadin.ui.themes.Runo;
+import org.apache.commons.lang3.StringUtils;
 import org.silverduck.applicants.common.localization.AppResources;
+import org.silverduck.applicants.domain.Applicant;
+import org.silverduck.applicants.repository.ApplicantsRepository;
 import org.silverduck.applicants.web.ApplicantsUI;
+import org.silverduck.applicants.web.org.silverduck.applicants.web.component.ApplicantComponent;
 
 import javax.annotation.PostConstruct;
-import javax.inject.Inject;
+import javax.ejb.EJB;
 
 /**
  * Summary page for Applicant that is shown after applying has been completed
@@ -20,8 +24,14 @@ import javax.inject.Inject;
 public class ApplicantSummary extends VerticalLayout implements View {
     public static final String VIEW = "ApplicantSummary";
 
-    @Inject
-    private ApplicantForm applicantForm;
+    @EJB
+    private ApplicantsRepository applicantsRepository;
+
+    private Applicant applicant;
+
+    private ApplicantComponent applicantComponent;
+
+    private Button backButton;
 
     @PostConstruct
     protected void init() {
@@ -42,20 +52,16 @@ public class ApplicantSummary extends VerticalLayout implements View {
         Label thankYouLabel = new Label(AppResources.getLocalizedString("applicantSummary.thanks", getUI().getCurrent().getLocale()));
         thankYouLabel.setStyleName(Runo.LABEL_H2);
 
-        Button backButton = new Button();
+        backButton = new Button();
         backButton.setCaption(AppResources.getLocalizedString("label.backToStart", getUI().getCurrent().getLocale()));
         backButton.setStyleName(BaseTheme.BUTTON_LINK);
-        backButton.addClickListener(new Button.ClickListener() {
-            @Override
-            public void buttonClick(Button.ClickEvent event) {
-                ApplicantsUI.navigateTo(RootView.VIEW);
-            }
-        });
 
         VerticalLayout rightSideLayout = new VerticalLayout();
         rightSideLayout.setDefaultComponentAlignment(Alignment.MIDDLE_CENTER);
         rightSideLayout.addComponent(thankYouLabel);
-        rightSideLayout.addComponent(applicantForm);
+
+        applicantComponent = new ApplicantComponent();
+        rightSideLayout.addComponent(applicantComponent);
 
         HorizontalLayout thumbsAndDataLayout = new HorizontalLayout();
         thumbsAndDataLayout.addComponent(thumbsUpImage);
@@ -74,6 +80,18 @@ public class ApplicantSummary extends VerticalLayout implements View {
     @Override
     public void enter(ViewChangeListener.ViewChangeEvent event) {
 
+        if (!StringUtils.isEmpty(event.getParameters())) {
+            String id = event.getParameters();
+            final Applicant applicant = applicantsRepository.findApplicant(Long.parseLong(id));
+            applicantComponent.view(applicant);
+
+            backButton.addClickListener(new Button.ClickListener() {
+                @Override
+                public void buttonClick(Button.ClickEvent event) {
+                    ApplicantsUI.navigateTo(RootView.VIEW, applicant.getId());
+                }
+            });
+        }
     }
 }
 

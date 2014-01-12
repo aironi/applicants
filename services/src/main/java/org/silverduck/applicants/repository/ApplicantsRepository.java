@@ -14,5 +14,39 @@ import java.util.List;
  */
 @Local
 public interface ApplicantsRepository extends MutableEntityProvider<Applicant> {
+    /**
+     * List all Applicants
+     *
+     * @return All Applicants.
+     */
     public List<Applicant> listApplicants();
+
+    /**
+     * Returns Applicant associated with the given ID
+     *
+     * @param applicantId ID of the applicant
+     * @return The Applicant object or null if applicant cannot be found with given ID.
+     */
+    public Applicant findApplicant(Long applicantId);
+
+    /**
+     * Add Applicant to Repository
+     *
+     * @param applicant Applicant to Add
+     */
+    void addApplicant(Applicant applicant);
+
+    /**
+     * Update pre-existing Applicant in repository
+     *
+     * @param applicant Previously persisted Applicant
+     */
+    void updateApplicant(Applicant applicant);
+
+    /**
+     * Remove an existing Applicant from repository
+     *
+     * @param applicant Applicant to Remove
+     */
+    void removeApplicant(Applicant applicant);
 }

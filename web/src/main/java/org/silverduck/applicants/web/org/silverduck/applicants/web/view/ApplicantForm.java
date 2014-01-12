@@ -1,52 +1,34 @@
 package org.silverduck.applicants.web.org.silverduck.applicants.web.view;
 
-import com.vaadin.addon.jpacontainer.JPAContainer;
 import com.vaadin.cdi.CDIView;
-import com.vaadin.cdi.UIScoped;
-import com.vaadin.data.fieldgroup.BeanFieldGroup;
-import com.vaadin.data.fieldgroup.FieldGroup;
-import com.vaadin.data.fieldgroup.PropertyId;
-import com.vaadin.data.util.BeanItem;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.ui.*;
 import com.vaadin.ui.themes.Runo;
+import org.apache.commons.lang3.StringUtils;
 import org.silverduck.applicants.common.localization.AppResources;
 import org.silverduck.applicants.domain.Applicant;
-import org.silverduck.applicants.domain.Gender;
+import org.silverduck.applicants.repository.ApplicantsRepository;
 import org.silverduck.applicants.web.ApplicantsUI;
-import org.silverduck.applicants.web.ErrorUI;
+import org.silverduck.applicants.web.org.silverduck.applicants.web.component.ApplicantComponent;
 
 import javax.annotation.PostConstruct;
-import javax.inject.Inject;
+import javax.ejb.EJB;
 
 /**
  * UI for the Applicant Form for applying for a job.
- *
+ * <p/>
  * TODO: Add possibility to add a picture of the applicant
  *
  * @author Iiro Hietala
  */
 @CDIView(ApplicantForm.VIEW)
-@UIScoped
 public class ApplicantForm extends VerticalLayout implements View {
 
     public static final String VIEW = "ApplicantForm";
 
-    @Inject
-    private JPAContainer<Applicant> applicantsContainer;
-
-    @PropertyId("firstName")
-    private TextField firstNameField;
-
-    @PropertyId("lastName")
-    private TextField lastNameField;
-
-    @PropertyId("gender")
-    private ComboBox genderBox;
-
-    @PropertyId("reasons")
-    private TextArea reasons;
+    @EJB
+    private ApplicantsRepository applicantsRepository;
 
     private Label headerLabel;
 
@@ -54,89 +36,37 @@ public class ApplicantForm extends VerticalLayout implements View {
 
     private HorizontalLayout commandButtons;
 
-    private BeanFieldGroup<Applicant> fieldGroup;
-
-    /**
-     * Edit an applicant
-     *
-     * @param applicant Applicant to Edit
-     */
-    public void edit(final Applicant applicant) {
-        bindFields(applicant);
-        setReadOnly(false);
-    }
-
-    private void bindFields(Applicant applicant) {
-        fieldGroup = new BeanFieldGroup(Applicant.class);
-        fieldGroup.setItemDataSource(new BeanItem<Applicant>(applicant));
-        fieldGroup.setBuffered(true);
-        fieldGroup.bindMemberFields(this);
-    }
-
-    /**
-     * View an applicant
-     *
-     * @param applicant Applicant to View
-     */
-    public void view(final Applicant applicant) {
-        bindFields(applicant);
-        setReadOnly(true);
-    }
-
-    @Override
-    public void setReadOnly(boolean readOnly) {
-        super.setReadOnly(readOnly);
-
-        firstNameField.setReadOnly(readOnly);
-        lastNameField.setReadOnly(readOnly);
-        genderBox.setReadOnly(readOnly);
-        reasons.setReadOnly(readOnly);
-        headerLabel.setVisible(!readOnly);
-        infoLabel.setVisible(!readOnly);
-        commandButtons.setVisible(!readOnly);
-    }
+    private ApplicantComponent applicantComponent;
 
     @PostConstruct
     protected void initComponent() {
         setSizeFull();
         setDefaultComponentAlignment(Alignment.MIDDLE_CENTER);
-
-        // Custom initialization for ComboBox to get data localized
-        genderBox = new ComboBox(AppResources.getLocalizedString("label.applicantForm.gender", getUI().getCurrent().getLocale()));
-        for (Gender gender : Gender.values()) {
-            genderBox.addItem(gender);
-            genderBox.setItemCaption(gender, AppResources.getLocalizedString(gender.getResourceKey(), getUI().getCurrent().getLocale()));
-            genderBox.setImmediate(true);
-        }
-
-        firstNameField = new TextField(AppResources.getLocalizedString("label.applicantForm.firstName", getUI().getCurrent().getLocale()));
-        lastNameField = new TextField(AppResources.getLocalizedString("label.applicantForm.lastName", getUI().getCurrent().getLocale()));
-        reasons = new TextArea(AppResources.getLocalizedString("label.applicantForm.reasons", getUI().getCurrent().getLocale()));
+        HorizontalLayout horizontalLayout = new HorizontalLayout();
+        horizontalLayout.setDefaultComponentAlignment(Alignment.MIDDLE_CENTER);
+        addComponent(horizontalLayout);
 
         Button submitButton = new Button(AppResources.getLocalizedString("label.submit", getUI().getCurrent().getLocale()));
         submitButton.addClickListener(new Button.ClickListener() {
             public void buttonClick(Button.ClickEvent event) {
-                try {
-                    if (fieldGroup.isValid()) {
-                        fieldGroup.commit(); // Bind to Bean
+                if (applicantComponent.isValid()) {
+                    Applicant applicant = applicantComponent.commit();
 
-                        // Since we're using detached entities up to this point, this may be done
-                        // as follows. Still, it's not pretty.
-                        // TODO: We should be using MVP pattern instead.
-
-                        Applicant applicant = fieldGroup.getItemDataSource().getBean();
-                        applicantsContainer.addEntity(applicant);
-                        view(applicant);
-                        ApplicantsUI.navigateTo(ApplicantSummary.VIEW);
-
-                        // fireViewEvent(ApplicantPresenter.ADD_APPLICANT, fieldGroup.getItemDataSource().getBean());
+                    // Since we're using transient entity up to this point (only adding), this may be done
+                    // as follows. Still, it's not pretty...
+                    // TODO: We should be using MVP pattern instead. See patch.
+                    if (applicant.getId() == null) {
+                        applicantsRepository.addApplicant(applicant);
                     } else {
-                        Notification.show(AppResources.getLocalizedString("applicantForm.validationErrorsNotification",
-                                getUI().getCurrent().getLocale()), Notification.Type.TRAY_NOTIFICATION);
+                        applicantsRepository.updateApplicant(applicant);
                     }
-                } catch (FieldGroup.CommitException e) {
-                    getUI().addWindow(new ErrorUI(e));
-                    e.printStackTrace(); // TODO: implement some sane logging such as LOG4J
+
+                    ApplicantsUI.navigateTo(ApplicantSummary.VIEW, applicant.getId());
+
+                    // fireViewEvent(ApplicantPresenter.ADD_APPLICANT, fieldGroup.getItemDataSource().getBean());
+                } else {
+                    Notification.show(AppResources.getLocalizedString("applicantForm.validationErrorsNotification",
+                            getUI().getCurrent().getLocale()), Notification.Type.TRAY_NOTIFICATION);
                 }
             }
         });
@@ -146,7 +76,7 @@ public class ApplicantForm extends VerticalLayout implements View {
 
             @Override
             public void buttonClick(Button.ClickEvent event) {
-                fieldGroup.discard();
+                applicantComponent.discard();
                 ApplicantsUI.navigateTo(RootView.VIEW);
                 // fireViewEvent(ApplicantPresenter.CANCEL_ADD, null);
             }
@@ -162,25 +92,27 @@ public class ApplicantForm extends VerticalLayout implements View {
         infoLabel = new Label(AppResources.getLocalizedString("label.applicantForm.formInfo", getUI().getCurrent().getLocale()));
         infoLabel.setStyleName(Runo.LABEL_SMALL);
 
-        HorizontalLayout horizontalLayout = new HorizontalLayout();
-        horizontalLayout.setDefaultComponentAlignment(Alignment.MIDDLE_CENTER);
-        FormLayout formLayout = new FormLayout();
-        formLayout.setDefaultComponentAlignment(Alignment.TOP_LEFT);
-        formLayout.setSizeFull();
-        formLayout.addComponent(headerLabel);
-        formLayout.addComponent(infoLabel);
-        formLayout.addComponent(firstNameField);
-        formLayout.addComponent(lastNameField);
-        formLayout.addComponent(genderBox);
-        formLayout.addComponent(reasons);
-        formLayout.addComponent(commandButtons);
-        horizontalLayout.addComponent(formLayout);
-        addComponent(horizontalLayout);
+        applicantComponent = new ApplicantComponent();
+
+        VerticalLayout contentLayout = new VerticalLayout();
+        contentLayout.setDefaultComponentAlignment(Alignment.TOP_LEFT);
+        contentLayout.setSizeFull();
+        contentLayout.addComponent(headerLabel);
+        contentLayout.addComponent(infoLabel);
+        contentLayout.addComponent(applicantComponent);
+        contentLayout.addComponent(commandButtons);
+
+        horizontalLayout.addComponent(contentLayout);
     }
 
     @Override
     public void enter(ViewChangeListener.ViewChangeEvent event) {
-
+        Applicant applicant = null;
+        if (!StringUtils.isEmpty(event.getParameters())) {
+            applicantsRepository.findApplicant(Long.parseLong(event.getParameters()));
+        } else {
+            applicantComponent.edit(new Applicant().resetFields());
+        }
 
     }
 }

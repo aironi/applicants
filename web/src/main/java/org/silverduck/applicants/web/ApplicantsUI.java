@@ -55,8 +55,24 @@ public class ApplicantsUI extends UI {
      *
      * @param view View name defined for a CDIView
      */
-    public static void navigateTo(String view) {
-        Page.getCurrent().setUriFragment("!" + view);
+    public static void navigateTo(String view, Object... parameters) {
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("!").append(view);
+
+        if (parameters != null && parameters.length > 0 && parameters[0] != null) {
+            sb.append("/");
+
+            for (int i = 0; i < parameters.length; i++) {
+                String parameter = parameters[i].toString();
+                sb.append(parameter);
+                if (i < parameters.length - 1) {
+                    sb.append("/");
+                }
+            }
+        }
+        Page.getCurrent().setUriFragment(sb.toString());
+
     }
 
 }

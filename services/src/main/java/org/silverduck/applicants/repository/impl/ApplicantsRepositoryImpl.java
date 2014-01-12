@@ -65,4 +65,28 @@ public class ApplicantsRepositoryImpl extends
     public List<Applicant> listApplicants() {
         return em.createQuery("SELECT applicant FROM Applicant as applicant").getResultList();
     }
+
+    @Override
+    public Applicant findApplicant(Long applicantId) {
+        return (Applicant) em.find(Applicant.class, applicantId);
+
+    }
+
+    @Override
+    public void addApplicant(Applicant applicant) {
+        em.persist(applicant);
+        em.flush();
+    }
+
+    @Override
+    public void updateApplicant(Applicant applicant) {
+        em.merge(applicant);
+        em.flush();
+    }
+
+    @Override
+    public void removeApplicant(Applicant applicant) {
+        em.remove(applicant);
+        em.flush();
+    }
 }

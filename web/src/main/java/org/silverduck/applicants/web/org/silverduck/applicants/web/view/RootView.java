@@ -1,6 +1,5 @@
 package org.silverduck.applicants.web.org.silverduck.applicants.web.view;
 
-import com.vaadin.addon.jpacontainer.JPAContainer;
 import com.vaadin.cdi.CDIView;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
@@ -8,8 +7,8 @@ import com.vaadin.server.ThemeResource;
 import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.*;
 import com.vaadin.ui.themes.BaseTheme;
+import org.apache.commons.lang3.StringUtils;
 import org.silverduck.applicants.common.localization.AppResources;
-import org.silverduck.applicants.domain.Applicant;
 import org.silverduck.applicants.web.ApplicantsUI;
 
 import javax.annotation.PostConstruct;
@@ -26,8 +25,12 @@ public class RootView extends VerticalLayout implements View {
     @Inject
     private ApplicantForm applicantForm;
 
-    @Inject
-    private JPAContainer<Applicant> applicantsContainer;
+    private Long applicantId;
+
+    private Button applyButton;
+
+    private Button applyLink;
+
 
     @PostConstruct
     public void init() {
@@ -64,34 +67,23 @@ public class RootView extends VerticalLayout implements View {
         layout.setExpandRatio(adminLink, 2);
     }
 
-    private final void redirectToEditApplicant() {
-        // Redirect to ApplicantForm.
-        applicantForm.edit(new Applicant().resetFields());
-        ApplicantsUI.navigateTo(ApplicantForm.VIEW);
-    }
 
     private void createApplyButton(VerticalLayout layout) {
-        Button applyButton = new Button();
+        applyButton = new Button();
         applyButton.setIcon(new ThemeResource("form.png"));
-        applyButton.addClickListener(new Button.ClickListener() {
-            @Override
-            public void buttonClick(Button.ClickEvent event) {
-                redirectToEditApplicant();
-            }
-        });
         applyButton.addStyleName(BaseTheme.BUTTON_LINK);
         applyButton.addStyleName("orange-border-button");
         layout.addComponent(applyButton);
         layout.setExpandRatio(applyButton, 5);
 
-        // Had to do it this way. Didn't manage to get the Label behave nicely with Button.
-        Button applyLink = new Button();
-        applyLink.setCaption(AppResources.getLocalizedString("label.applyForJob", getUI().getCurrent().getLocale()));
+        applyLink = new Button();
+
+        // Had to insert a separate link since I didn't manage to get the Label behave nicely with Button in short time.
         applyLink.addStyleName(BaseTheme.BUTTON_LINK);
         applyLink.addClickListener(new Button.ClickListener() {
             @Override
             public void buttonClick(Button.ClickEvent event) {
-                redirectToEditApplicant();
+                ApplicantsUI.navigateTo(ApplicantForm.VIEW, applicantId);
             }
         });
 
@@ -114,13 +106,29 @@ public class RootView extends VerticalLayout implements View {
 
         companyInfoLabel.setWidth(350, Unit.PIXELS);
         companyInfoLayout.setHeight(200, Unit.PIXELS);
-        companyInfoLayout.setWidth(600, Unit.PIXELS);
+        companyInfoLayout.setWidth(550, Unit.PIXELS);
         layout.addComponent(companyInfoLayout);
         layout.setExpandRatio(companyInfoLayout, 3);
     }
 
     @Override
     public void enter(ViewChangeListener.ViewChangeEvent event) {
+        if (!StringUtils.isEmpty(event.getParameters())) {
+            applicantId = Long.parseLong(event.getParameters());
+        }
+
+        applyButton.addClickListener(new Button.ClickListener() {
+            @Override
+            public void buttonClick(Button.ClickEvent event) {
+                ApplicantsUI.navigateTo(ApplicantForm.VIEW, applicantId);
+            }
+        });
+
+        if (applicantId == null) {
+            applyLink.setCaption(AppResources.getLocalizedString("label.applyForJob", getUI().getCurrent().getLocale()));
+        } else {
+            applyLink.setCaption(AppResources.getLocalizedString("label.modifyApplication", getUI().getCurrent().getLocale()));
+        }
 
     }
 }
